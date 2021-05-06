@@ -1,3 +1,4 @@
+-- 실습준비
 create table basket_a
 (id int primary key,
 fruit varchar (100) not null);
@@ -37,7 +38,6 @@ select
 inner join basket_b b 
  on a.fruit = b.fruit;
 ---------------------------------------------
--- 실습
 select 
 	a.customer_id,a.first_name,a.last_name,a.email,
 	b.amount,b.payment_date
@@ -62,4 +62,97 @@ select
 inner join payment b 
 on a.customer_id = b.customer_id 
 inner join staff c 
-on b.staff_id = c.staff_id; 
+ on b.staff_id = c.staff_id; 
+---------------------------------------------
+select 
+	a.id as id_a,
+	a.fruit as fruit_a,
+	b.id as id_b,
+	b.fruit as fruit_b
+ from basket_a a 
+left join basket_b b 
+ on a.fruit = b.fruit;
+---------------------------------------------
+-- left only
+select
+	a.id as id_a,
+	a.fruit as fruit_a,
+	b.id as id_b,
+	b.fruit as fruit_b
+ from basket_a a 
+left join basket_b b 
+ on a.fruit = b.fruit 
+where b.id is null;
+---------------------------------------------
+select 
+	a.id as id_a,
+	a.fruit as friut_a,
+	b.id as id_b,
+	b.fruit as fruit_b
+ from basket_a a
+right join basket_b b
+ on a.fruit = b.fruit;
+ ---------------------------------------------
+-- right only
+select
+	a.id as id_a,
+	a.fruit as fruit_a,
+	b.id as id_b,
+	b.fruit as fruit_b
+ from basket_a a 
+right join basket_b b
+ on a.fruit = b.fruit 
+where a.id is null;
+---------------------------------------------
+-- 실습준비
+create table employee
+(employee_id int primary key,
+first_name varchar(255)not null,
+last_name varchar(255) not null,
+manager_id int,
+foreign key(manager_id) references employee(employee_id) on delete cascade)
+;
+---------------------------------------------
+insert into employee(
+employee_id,
+first_name,
+last_name,
+manager_id)
+values
+(1, 'Windy', 'Hays', null),
+(2, 'Ava', 'Christensen', 1),
+(3, 'Hassan', 'Conner', 1),
+(4, 'Anna', 'Reeves', 2),
+(5, 'Sau', 'Norman', 2),
+(6, 'Kelsie', 'Hays', 3),
+(7, 'Tory', 'Goff', 3),
+(8, 'Salley', 'Lester', 3);
+---------------------------------------------
+select * from employee;
+---------------------------------------------
+-- 실습
+select 
+ e.first_name ||' '|| e.last_name employee,
+ m.first_name ||' '|| m.last_name manager
+from employee e
+inner join employee m 
+on m.employee_id = e.manager_id
+order by manager;
+---------------------------------------------
+select 
+ e.first_name ||' '|| e.last_name employee,
+ m.first_name ||' '|| e.last_name manager
+from employee e 
+left outer join employee m 
+on m.employee_id = e.manager_id
+order by manager;
+---------------------------------------------
+-- 부정형 조건
+select 
+ f1.title,
+ f2.title,
+ f1.length
+ from film f1
+inner join film f2
+on f1.film_id <> f2.film_id
+and f1.length = f2.length;
