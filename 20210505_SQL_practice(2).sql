@@ -156,3 +156,80 @@ select
 inner join film f2
 on f1.film_id <> f2.film_id
 and f1.length = f2.length;
+---------------------------------------------
+select 
+	a.id id_a,
+	a.fruit fruit_a,
+	b.id id_b,
+	b.fruit fruit_b
+from basket_a a 
+full outer join basket_b b
+ on a.fruit = b.fruit;
+ ---------------------------------------------
+select 
+	a.id id_a,
+	a.fruit fruit_a,
+	b.id id_b,
+	b.fruit fruit_b
+from basket_a a 
+full outer join basket_b b 
+on a.fruit = b.fruit
+where a.id is null or b.id is null;
+---------------------------------------------
+-- 추가실습준비
+create table
+if not exists departments
+(department_id serial primary key,
+department_name varchar(255) not null);
+---------------------------------------------
+create table
+if not exists employees
+(employee_id serial primary key,
+employee_name varchar(255),
+department_id integer);
+---------------------------------------------
+insert into departments
+(department_name)
+values
+('Sales'),('Marketing'),('HR'),('IT'),('Production');
+---------------------------------------------
+insert into employees 
+(employee_name,department_id)
+values
+('Bette Nicholson',1),
+('Christian Gable',1),
+('Joe Swank',2),
+('Fred Costner',3),
+('Sandra Kilmer',4),
+('Juia Mcqueen',null);
+---------------------------------------------
+select * from departments;
+---------------------------------------------
+select * from employees;
+---------------------------------------------
+-- full outer join
+select
+	e.employee_name,
+	d.department_name
+from employees e 
+full outer join departments d 
+ on d.department_id = e.department_id;
+---------------------------------------------
+select 
+	e.employee_name,
+	d.department_name
+from employees e 
+full outer join departments d 
+ on d.department_id = e.department_id
+where e.employee_name is null;
+---------------------------------------------
+select 
+	e.employee_name,
+	d.department_name
+from employees e 
+full outer join departments d 
+ on d.department_id = e.department_id
+where d.department_id is null;
+---------------------------------------------
+
+
