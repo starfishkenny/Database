@@ -231,5 +231,69 @@ full outer join departments d
  on d.department_id = e.department_id
 where d.department_id is null;
 ---------------------------------------------
-
+-- cross join
+create table cross_T1
+(label_ char(1) primary key);
+---------------------------------------------
+create table cross_T2
+(score int primary key);
+---------------------------------------------
+insert into cross_T1(label_)
+values
+('A'),
+('B');
+---------------------------------------------
+insert into cross_T2(score)
+values
+(1),
+(2),
+(3);
+---------------------------------------------
+select * from cross_T1;
+---------------------------------------------
+select * from cross_T2;
+---------------------------------------------
+select * from cross_T1 cross join cross_T2;
+---------------------------------------------
+-- natural join 
+create table categories
+(category_id serial primary key,
+category_name varchar(255) not null);
+---------------------------------------------
+create table products
+(product_id serial primary key,
+product_name varchar(255) not null,
+category_id int not null,
+foreign key(category_id) references categories(category_id));
+---------------------------------------------
+insert into categories 
+(category_name)
+values
+('Smart Phone'),
+('Laptop'),
+('Tablet');
+---------------------------------------------
+insert into products
+(product_name, category_id)
+values
+('iPhone',1),
+('Samsung Galaxy',1),
+('HP Elite',2),
+('Lenovo Thinkpad',2),
+('iPad',3),
+('Kindle Fire',3);
+---------------------------------------------
+select * from categories;
+---------------------------------------------
+select * from products;
+---------------------------------------------
+select * from products a natural join categories b;
+---------------------------------------------
+select
+	a.category_id, a.product_id,
+	a.product_name, b.category_name
+ from products a
+inner join categories b 
+on (a.category_id = b.category_id);
+---------------------------------------------
 
