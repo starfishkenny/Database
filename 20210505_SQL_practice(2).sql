@@ -296,4 +296,83 @@ select
 inner join categories b 
 on (a.category_id = b.category_id);
 ---------------------------------------------
+-- group by
+select customer_id from payment group by customer_id;
+---------------------------------------------
+select customer_id,sum(amount) as amount_sum from payment
+	group by customer_id
+	order by sum(amount) desc;
+---------------------------------------------
+select customer_id,sum(amount) as amount_sum from payment
+	group by customer_id
+	order by amount_sum desc;
+---------------------------------------------
+select customer_id,sum(amount) as amount_sum from payment
+	group by customer_id
+	order by 2 desc;
+---------------------------------------------
+select staff_id,count(payment_id) as count from payment
+	group by staff_id;
+---------------------------------------------
+-- having
+select customer_id,sum(amount) as amount_sum from payment
+	group by customer_id
+	having sum(amount) > 200;
+---------------------------------------------
+select store_id,count(customer_id) as count from customer
+	group by store_id
+	having count(customer_id) > 300;
+---------------------------------------------
+-- grouping set
+create table sales
+(brand varchar not null,
+segment varchar not null,
+quantity int not null,
+primary key (brand,segment));
 
+insert into sales (brand,segment,quantity)
+values
+('ABC','Premium',100),
+('ABC','Basic',200),
+('XYZ','Premium',100),
+('XYZ','Basic',300);
+---------------------------------------------
+select * from sales;
+---------------------------------------------
+select brand,segment,sum(quantity) from sales
+group by brand,segment;
+---------------------------------------------
+select brand,sum(quantity) from sales group by brand;
+---------------------------------------------
+select segment,sum(quantity) from sales group by segment;
+---------------------------------------------
+select sum(quantity) from sales;
+---------------------------------------------
+select brand,segment,sum(quantity) from sales
+	group by brand,segment
+	union all
+	select brand,null,sum(quantity)
+	from sales
+	group by brand
+	union all
+	select null,segment,sum(quantity)
+	from sales
+	group by segment
+	union all
+	select null,null,sum(quantity)
+	from sales;
+---------------------------------------------
+select brand,segment,sum(quantity) from sales
+	group by
+	grouping sets((brand,segment),(brand),());
+---------------------------------------------
+select grouping(brand) grouping_brand,grouping(segment) grouping_segment,
+	brand,segment,sum(quantity)
+	from sales
+	group by
+	grouping sets
+	((brand,segment),
+	(brand),
+	(segment),
+	())
+	order by brand,segment;
