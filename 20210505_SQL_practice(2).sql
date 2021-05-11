@@ -433,10 +433,12 @@ select * from product_group;
 ---------------------------------------------
 select * from product;
 ---------------------------------------------
+-- count
 select count(*) from product;
 ---------------------------------------------
 select count(*) over(), A.* from product A;
 ---------------------------------------------
+-- avg
 select avg(price) from product;
 ---------------------------------------------
 select B.group_name,avg(price) from product A
