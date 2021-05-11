@@ -397,3 +397,55 @@ select brand,segment,sum(quantity) from sales
 		cube (segment)
 	order by brand,segment;
 ---------------------------------------------
+-- 분석함수
+create table product_group
+	(group_id serial primary key,
+	group_name varchar(255) not null);
+---------------------------------------------
+insert into product_group(group_name)
+values
+('Smartphone'),
+('Laptop'),
+('Tablet');
+---------------------------------------------
+create table product
+	(product_id serial primary key,
+	product_name varchar(255) not null,
+	price decimal(11,2),
+	group_id int not null,
+	foreign key (group_id) references product_group(group_id));
+---------------------------------------------
+insert into product(product_name,group_id,price)
+values
+('Microsoft Lumia',1,200),
+('HTC One',1,400),
+('Nexus',1,500),
+('iPhone',1,900),
+('HP Elite',2,1200),
+('Lenovo Thinkpad',2,700),
+('Sony VAIO',2,700),
+('Dell Vostro',2,800),
+('iPad',3,700),
+('Kindle Fire',3,150),
+('Samsung Galaxy Tab',3,200);
+---------------------------------------------
+select * from product_group;
+---------------------------------------------
+select * from product;
+---------------------------------------------
+select count(*) from product;
+---------------------------------------------
+select count(*) over(), A.* from product A;
+---------------------------------------------
+select avg(price) from product;
+---------------------------------------------
+select B.group_name,avg(price) from product A
+inner join product_group B
+	on (A.group_id = B.group_id)
+group by B.group_name;
+---------------------------------------------
+select A.product_name,A.price,B.group_name,avg(A.price)
+	over (partition by B.group_name)
+from product A
+inner join product_group B on (A.group_id = B.group_id);
+---------------------------------------------
