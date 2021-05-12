@@ -451,3 +451,24 @@ select A.product_name,A.price,B.group_name,avg(A.price)
 from product A
 inner join product_group B on (A.group_id = B.group_id);
 ---------------------------------------------
+-- row_number (무조건 1,2,3,4,5,..)
+select A.product_name,B.group_name,A.price,
+	row_number () over (partition by B.group_name order by A.price)
+from product A
+inner join product_group B
+	on (A.group_id = B.group_id);
+---------------------------------------------
+-- rank (같은 순위면 같은 순위면서 다음 순위 건너뜀 1,1,3,4,...)
+select A.product_name,B.group_name,A.price,
+	rank () over (partition by B.group_name order by A.price)
+from product A
+inner join product_group B
+	on (A.group_id = B.group_id);
+---------------------------------------------
+-- dense_rank (같은 순위며 같은 순위면서 다음 순위 건너뛰지 않음 1,1,2,3,...)
+select A.product_name,B.group_name,A.price,
+	dense_rank () over (partition by B.group_name order by A.price)
+from product A
+inner join product_group B
+	on (A.group_id = B.group_id);
+---------------------------------------------
