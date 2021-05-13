@@ -472,3 +472,30 @@ from product A
 inner join product_group B
 	on (A.group_id = B.group_id);
 ---------------------------------------------
+-- first_value, last_value
+select A.product_name,B.group_name,A.price,
+	first_value(A.price) over (partition by b.group_name order by a.price)
+	as lowest_price_per_group
+from product A
+inner join product_group B on (A.group_id = B.group_id);
+---------------------------------------------
+select A.product_name,B.group_name,A.price,
+	last_value(A.price) over (partition by B.group_name order by A.price
+	range between unbounded preceding and unbounded following) -- 파티션 첫번째 로우부터 파티션 마지막 로우까지
+	as highest_price_per_group
+from product A
+inner join product_group B on (A.group_id = B.group_id);
+---------------------------------------------
+-- lag, lead
+select A.product_name,B.group_name,A.price,
+	lag(A.price,1) over (partition by B.group_name order by A.price) as prev_price,
+	A.price - lag(price,1) over (partition by group_name order by A.price) as cur_prev_diff
+from product A
+inner join product_group B on (A.group_id = B.group_id);
+---------------------------------------------
+select A.product_name,B.group_name,A.price,
+	lead(A.price,1) over (partition by B.group_name order by A.price) as next_price,
+	A.price - lead(price,1) over (partition by group_name order by A.price) as cur_next_diff
+from product A
+inner join product_group B on (A.group_id = B.group_id);
+---------------------------------------------
