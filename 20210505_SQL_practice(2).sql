@@ -499,3 +499,35 @@ select A.product_name,B.group_name,A.price,
 from product A
 inner join product_group B on (A.group_id = B.group_id);
 ---------------------------------------------
+-- 실습문제1
+select to_char(rental_date,'YYYY') Y,
+	to_char(rental_date,'MM') M,
+	to_char(rental_date,'DD') D,
+	count(rental_id)
+from rental
+group by rollup 
+	(to_char(rental_date,'YYYY'),
+	to_char(rental_date,'MM'),
+	to_char(rental_date,'DD'));
+---------------------------------------------
+-- 실습문제2
+select A.customer_id,
+	row_number() over (order by count(A.rental_id) desc) as rental_rank,
+	count(A.rental_id) rental_count
+from rental A
+group by A.customer_id;
+---------------------------------------------
+select A.customer_id,
+	row_number() over(order by count(A.rental_id) desc) as rental_rank,
+	count(A.rental_id) rental_count
+from rental A
+group by A.customer_id order by rental_rank limit 1;
+---------------------------------------------
+select A.customer_id,
+	row_number() over(order by count(A.rental_id) desc) as rental_rank,
+	count(A.rental_id) rental_count,
+	max(B.first_name) as first_name,
+	max(B.last_name) as last_name
+from rental A, customer B
+	where A.customer_id = B.customer_id
+group by A.customer_id order by rental_rank limit 1;
