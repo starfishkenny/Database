@@ -144,7 +144,7 @@ select A.FILM_ID,A.TITLE,A.RENTAL_RATE from
 	as AVG_RENTAL_RATE from FILM A) A
 	where A.RENTAL_RATE > A.AVG_RENTAL_RATE;
 -----------------------------------------------------
--- any (값을 서브쿼리에 의해 반환된 값 집합과 비교)
+-- any
 select TITLE,LENGTH from FILM
 	where LENGTH >= any -- 영화분류별 상영시간이 가장 긴 영화의 제목 및 상영시간을 구함
 	(select max(LENGTH) from FILM A, FILM_CATEGORY B
@@ -163,3 +163,31 @@ select TITLE,LENGTH from FILM
 	(select max(LENGTH) from FILM A,FILM_CATEGORY B
 		where A.FILM_ID = B.FILM_ID
 		group by B.CATEGORY_ID);
+-----------------------------------------------------
+-- all
+select TITLE, LENGTH from FILM
+	where LENGTH >= all
+		(select max(LENGTH) from FILM A, FILM_CATEGORY B
+			where A.FILM_ID = B.FILM_ID
+			group by B.CATEGORY_ID);
+-----------------------------------------------------
+select FILM_ID,TITLE,LENGTH from FILM
+	where LENGTH > all
+		(select round(AVG(LENGTH),2) from FILM
+		group by RATING)
+	order by LENGTH;
+-----------------------------------------------------
+select round(AVG(LENGTH),2) from FILM
+group by RATING;
+-----------------------------------------------------
+-- exists (서브쿼리 내에 집합이 존재하는지 존재여부만을 판단 -> 연산 시 부하가 줄어듦)
+select FIRST_NAME,LAST_NAME from CUSTOMER C
+	where exists (select 1 from PAYMENT P
+					where P.CUSTOMER_ID = C.CUSTOMER_ID and P.AMOUNT>11)
+	order by FIRST_NAME,LAST_NAME;
+-----------------------------------------------------
+-- not exists
+select FIRST_NAME,LAST_NAME from CUSTOMER C	
+	where not exists (select 1 from PAYMENT P
+					where P.CUSTOMER_ID = C.CUSTOMER_ID and P.AMOUNT>11)
+	order by FIRST_NAME,LAST_NAME;
