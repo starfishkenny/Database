@@ -191,3 +191,15 @@ select FIRST_NAME,LAST_NAME from CUSTOMER C
 	where not exists (select 1 from PAYMENT P
 					where P.CUSTOMER_ID = C.CUSTOMER_ID and P.AMOUNT>11)
 	order by FIRST_NAME,LAST_NAME;
+-----------------------------------------------------
+-- 실습문제1
+select A.FILM_ID,A.TITLE,A.RENTAL_RATE from
+(select A.FILM_ID,A.TITLE,A.RENTAL_RATE,
+avg(A.RENTAL_RATE) over() as AVG_RENTAL_RATE from FILM A) A
+	where A.RENTAL_RATE > A.AVG_RENTAL_RATE;
+-----------------------------------------------------
+-- 실습문제2
+select A.FILM_ID,A.TITLE from FILM A
+	where not exists 
+		(select 1 from INVENTORY B, FILM C
+			where B.FILM_ID = C.FILM_ID and A.FILM_ID = C.FILM_ID);
