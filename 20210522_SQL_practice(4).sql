@@ -128,7 +128,7 @@ LAST_UPDATE timestamp not null default now(),
 constraint CATEGORY_IMPORT_PKEY primary key (CATEGORY_ID));
 -------------------------------------------------------
 copy CATEGORY_IMPORT(CATEGORY_ID,"NAME",LAST_UPDATE)
-from 'E:\DB_CATEGORY.csv'
+from '...\DB_CATEGORY.csv'
 delimiter ','
 csv header;
 -------------------------------------------------------
@@ -138,14 +138,122 @@ delete from CATEGORY_IMPORT;
 commit;
 -------------------------------------------------------
 copy CATEGORY_IMPORT(CATEGORY_ID,"NAME",LAST_UPDATE)
-from 'E:\DB_CATEGORY.txt'
+from '...\DB_CATEGORY.txt'
 delimiter '|'
 csv header;
 -------------------------------------------------------
 copy CATEGORY_IMPORT(CATEGORY_ID,"NAME",LAST_UPDATE)
-from 'E:\DB_CATEGORY_2.csv'
+from '...\DB_CATEGORY_2.csv'
 delimiter ','
 csv;
 -------------------------------------------------------
+-- 데이터타입1
+create table data_type_test_1
+(A_BOOLEAN boolean,
+B_CHAR char(10),
+C_VARCHAR varchar(10),
+D_TEXT text,
+E_INT int,
+F_SAMLLINT smallint,
+G_FLOAT float,
+H_NUMERIC numeric(15,2));
+
+insert into DATA_TYPE_TEST_1
+values
+(true,
+'ABCDE',
+'ABCDE',
+'TEXT',
+1000,
+10,
+10.12345,
+10.25);
+
+select * from DATA_TYPE_TEST_1;
 -------------------------------------------------------
+-- 데이터타입2
+create table DATA_TYPE_TEST_2
+(A_DATE date,
+B_TIME time,
+C_TIMESTAMP timestamp,
+D_ARRAY text[],
+E_JSON json);
+
+insert into data_type_test_2 
+values
+(current_date,
+localtime,
+current_timestamp,
+array['010-1234-1234','010-4321-4321'],
+'{"customer":"John Doe","items":{"product":"Beer","qty":6}}');
+
+select * from DATA_TYPE_TEST_2;
 -------------------------------------------------------
+-- 테이블생성_제약조건
+create table ACCOUNT
+(USER_ID serial primary key,
+USERNAME varchar(50) unique not null,
+PASSWORD varchar(50) not null,
+EMAIL varchar(355) unique not null,
+CREATED_ON timestamp not null,
+LAST_LOGIN timestamp);
+-------------------------------------------------------
+create table role
+(ROLE_ID serial primary key,
+ROLE_NAME varchar(255) unique not null);
+-------------------------------------------------------
+create table ACCOUNT_ROLE
+(USER_ID integer not null,
+ROLE_ID integer not null,
+GRANT_DATE timestamp without time zone,
+primary key (USER_ID,ROLE_ID),
+constraint ACCOUNT_ROLE_ROLE_ID_FKEY foreign key(ROLE_ID)
+references ROLE(ROLE_ID) match simple
+on update no action on delete no action,
+constraint ACCOUNT_ROLE_USER_ID_FKEY foreign key(USER_ID)
+references ACCOUNT(USER_ID) match simple
+on update no action on delete no action);
+
+-- ROLE_ID 컬럼은 ROLE테이블의 ROLE_ID 컬럼을 참조한다.
+-- ROLE_ID 컬럼은 ROLE테이블의 ROLE_ID 컬럼에 대한 삭제 혹은 변경시 아무것도 하지 않는다.
+-- USER_ID 컬럼은 ACCOUNT테이블의 USER_ID 컬럼을 참조한다.
+-- USER_ID 컬럼은 ACCOUNT테이블의 USER_ID 컬럼에 대한 삭제 혹은 변경시 아무것도 하지 않는다.
+-------------------------------------------------------
+insert into ACCOUNT
+values
+(1,'이경오','1234','dbms@naver.com',current_timestamp,null);
+
+commit;
+
+select * from ACCOUNT;
+-------------------------------------------------------
+insert into ROLE
+values
+(1,'DBA');
+
+commit;
+
+select * from role;
+-------------------------------------------------------
+insert into ACCOUNT_ROLE
+values
+(1,1,current_timestamp);
+
+select * from ACCOUNT_ROLE;
+-------------------------------------------------------
+-- CTAS(CREATE TABLE AS SELECT)
+-- 액션영화의 정보만으로 신규 테이블 생성(1)
+create table ACTION_FILM as select
+A.FILM_ID,A.TITLE,A.RELEASE_YEAR,A.LENGTH,A.RATING
+from FILM A, FILM_CATEGORY B
+	where A.FILM_ID = B.FILM_ID and B.CATEGORY_ID =1;
+
+select * from ACTION_FILM;
+-------------------------------------------------------
+-- 액션영화의 정보만으로 신규 테이블 생성(2)
+create table if not exists ACTION_FILM as select
+A.FILM_ID,A.TITLE,A.RELEASE_YEAR,A.LENGTH,A.RATING
+from FILM A, FILM_CATEGORY B
+	where A.FILM_ID = B.FILM_ID and B.CATEGORY_ID =1;
+
+-- 기존에 테이블이 있어도 if not exists로 인해 error 발생 X / 아무런 작업 없이 SQL문 종료
