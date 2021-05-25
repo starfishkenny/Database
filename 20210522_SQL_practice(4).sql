@@ -257,3 +257,68 @@ from FILM A, FILM_CATEGORY B
 	where A.FILM_ID = B.FILM_ID and B.CATEGORY_ID =1;
 
 -- 기존에 테이블이 있어도 if not exists로 인해 error 발생 X / 아무런 작업 없이 SQL문 종료
+-------------------------------------------------------
+-- 테이블 구조 변경
+create table LINKS
+(LINK_ID serial primary key,
+TITLE varchar(512) not null,
+URL varchar(1024) not null unique);
+-------------------------------------------------------
+alter table LINKS add column ACTIVE boolean; -- ACTIVE 칼럼 추가
+select * from LINKS;
+-------------------------------------------------------
+alter table LINKS drop column ACTIVE; -- ACTIVE 칼럼 제거
+select * from LINKS;
+-------------------------------------------------------
+alter table LINKS rename column TITLE to LINK_TITLE; -- TITLE 칼럼 LINK_TITLE 칼럼으로 이름 변경
+select * from LINKS;
+-------------------------------------------------------
+alter table links add column TARGET varchar(10);
+select * from LINKS;
+-------------------------------------------------------
+alter table LINKS alter column TARGET set default '_BLANK'; -- TARGET 칼럼의 default값을 '_BLANK'로 설정
+select * from LINKS;
+-------------------------------------------------------
+insert into LINKS
+(LINK_TITLE,URL)
+values
+('PostgreSQL Tutorial','http://www.postgresqltutorial.com');
+
+commit;
+-------------------------------------------------------
+select * from LINKS;
+-------------------------------------------------------
+alter table LINKS add check (TARGET in ('_self','_blank','_parent','_top')); -- TARGET 칼럼에 대한 체크 제약 조건 추가
+-------------------------------------------------------
+insert into LINKS
+(LINK_TITLE,URL,TARGET)
+values
+('PostgreSQL Tutorial','http://www.postgresqltutorial.com','whatever'); -- TARGET 칼럼의 체크 제약조건에 없는 'whatever' 값 insert 시도 (X)
+-------------------------------------------------------
+-- 테이블 이름 변경
+create table VENDORS
+(ID serial primary key,
+NAME varchar not null);
+-------------------------------------------------------
+alter table VENDORS rename to SUPPLIERS;
+-------------------------------------------------------
+create table SUPPLIER_GROUPS
+(ID serial primary key,
+NAME varchar not null);
+-------------------------------------------------------
+alter table SUPPLIERS add column GROUP_ID int not null;
+alter table SUPPLIERS add foreign key (GROUP_ID) references SUPPLIER_GROUPS (ID); -- FK 생성
+-------------------------------------------------------
+-- 뷰 생성
+create view SUPPLIER_DATA as select
+S.ID,S.NAME,G.name "GROUP"
+from SUPPLIERS S, SUPPLIER_GROUPS G
+	where G.ID = S.GROUP_ID;	
+-------------------------------------------------------
+select * from SUPPLIER_DATA;
+-------------------------------------------------------
+-- SUPPLIERS 테이블의 GROUP_ID 칼럼은 SUPPLIER_GROUPS 테이블의 ID 칼럼을 참조함
+-- 그럼 만약 부모 테이블인 SUPPLIER_GROUPS 테이블의 테이블명을 바꾸면 자식테이블인 SUPPLIERS 테이블은 어떻게 될까
+alter table SUPPLIER_GROUPS rename to GROUPS;
+-------------------------------------------------------
+-- 테이블명이 바뀌었어도 자동으로 GROUPS 테이블을 참조함 (자동으로 반영)
