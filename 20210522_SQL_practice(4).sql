@@ -322,3 +322,82 @@ select * from SUPPLIER_DATA;
 alter table SUPPLIER_GROUPS rename to GROUPS;
 -------------------------------------------------------
 -- 테이블명이 바뀌었어도 자동으로 GROUPS 테이블을 참조함 (자동으로 반영)
+-------------------------------------------------------
+-- 컬럼추가
+create table TB_CUST
+(CUST_ID serial primary key,
+CUST_NAME varchar(50) not null);
+
+alter table TB_CUST add column PHONE_NUMBER varchar(13);
+
+alter table TB_CUST
+	add column FAX_NUMBER varchar(13),
+	add column EMAIL_ADDR varchar(50);
+
+select * from TB_CUST;
+-------------------------------------------------------
+-- not unll 제약 컬럼 추가 -> 우선 null 조건으로 컬럼 추가 후 해당 컬럼을 update
+insert into TB_CUST
+values
+(1,'이경오','010-1234-5678','02-123-1234','dbmsexpert@naver.com');
+
+commit;
+-------------------------------------------------------
+alter table TB_CUST add column CONTACT_NM varchar null;
+
+update TB_CUST set CONTACT_NM = '홍길동' where CUST_ID = 1;
+
+commit;
+
+alter table TB_CUST alter column CONTACT_NM set not null;
+-------------------------------------------------------
+-- 칼럼 제거
+create table PUBLISHERS
+(PUBLISHER_ID serial primary key,
+NAME varchar not null);
+
+create table CATEGORIES_
+(CATEGORY_ID serial primary key,
+NAME varchar not null);
+
+create table BOOKS
+(BOOK_ID serial primary key,
+TITLE varchar not null,
+ISBN varchar not null,
+PUBLISHED_DATE date not null,
+DESCRIPTION varchar,
+CATEGORY_ID int not null,
+PUBLISHER_ID int not null,
+foreign key (PUBLISHER_ID) references PUBLISHERS
+(PUBLISHER_ID),
+foreign key (CATEGORY_ID) references CATEGORIES
+(CATEGORY_ID));
+-------------------------------------------------------
+create view BOOK_INFO as select
+	B.BOOK_ID,
+	B.TITLE,
+	B.ISBN,
+	B.PUBLISHED_DATE,
+	P.NAME
+from BOOKS B, PUBLISHERS P 
+	where P.PUBLISHER_ID = B.PUBLISHER_ID
+	order by B.TITLE;
+-------------------------------------------------------
+alter table BOOKS drop column CATEGORY_ID; -- BOOKS 테이블은 자식 테이블이므로 CATEGORY_ID 칼럼은 제거 가능. 칼럼이 제거되면서 CATEGORY_ID의 FK도 함꼐 삭제됨
+-------------------------------------------------------
+alter table BOOKS drop column PUBLISHER_ID; -- PUBLISHER_ID 칼럼 제거할 수 없음 -> 해당 칼럼은 BOOK_INFO 뷰에서 참조하고 있기 때문
+-------------------------------------------------------
+alter table BOOKS drop column PUBLISHER_ID cascade;
+-------------------------------------------------------
+select * from BOOK_INFO; -- 칼럼 삭제 성공, 그러나 BOOK_INFO 뷰도 같이 drop됨
+-------------------------------------------------------
+alter table BOOKS
+	drop column ISBN,
+	drop column DESCRIPTION;
+-------------------------------------------------------
+-------------------------------------------------------
+-------------------------------------------------------
+-------------------------------------------------------
+-------------------------------------------------------
+-------------------------------------------------------
+-------------------------------------------------------
