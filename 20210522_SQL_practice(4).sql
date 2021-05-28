@@ -395,9 +395,65 @@ alter table BOOKS
 	drop column ISBN,
 	drop column DESCRIPTION;
 -------------------------------------------------------
+-- 칼럼 데이터 타입 변경
+create table ASSETS
+(ID serial primary key,
+NAME text not null,
+ASSET_NO varchar(10) not null,
+DESCRIPTION text,
+LOCATION text,
+ACQUIRED_DATE date not null);
+
+insert into ASSETS
+(NAME,
+ASSET_NO,
+location,
+ACQUIRED_DATE)
+values
+('Server','10001','Server room','2017-01-01'),
+('UPS','10002','Server room','2017-01-02');
+
+commit;
+
+select * from ASSETS;
 -------------------------------------------------------
+alter table ASSETS alter column NAME type varchar(50);
 -------------------------------------------------------
+alter table ASSETS
+	alter column LOCATION type varchar(100),
+	alter column DESCRIPTION type varchar(500);
 -------------------------------------------------------
+alter table ASSETS alter column ASSET_NO type int; -- 실패
 -------------------------------------------------------
+alter table ASSETS alter column ASSET_NO type int using ASSET_NO::integer;
 -------------------------------------------------------
+-- 칼럼 이름 변경
+create table CUSTOMER_GROUPS
+(ID serial primary key,
+NAME varchar not null);
+
+create table CUSTOMERS
+(ID serial primary key,
+NAME varchar not null,
+PHONE varchar not null,
+EMAIL varchar,
+GROUP_ID int,
+foreign key (GROUP_ID) references CUSTOMER_GROUPS (ID));
+
+create view CUSTOMER_DATA as select
+C.ID,C.NAME,G.NAME CUSTOMER_GROUP
+from CUSTOMERS C, CUSTOMER_GROUPS G 
+	where G.ID = C.GROUP_ID;
+
+create or replace view public.CUSTOMER_DATA
+as select C.ID,C.NAME,G.NAME as CUSTOMER_GROUP
+from CUSTOMERS C, CUSTOMER_GROUPS G
+	where G.ID = C.GROUP_ID;
+-------------------------------------------------------
+select * from CUSTOMER_GROUPS;
+select * from CUSTOMERS;
+select * from CUSTOMER_DATA;
+-------------------------------------------------------
+alter table CUSTOMERS rename column EMAIL to CONTACT_EMAIL;
+alter table CUSTOMER_GROUPS rename column NAME to GROUP_NAME;
 -------------------------------------------------------
