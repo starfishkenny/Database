@@ -457,3 +457,61 @@ select * from CUSTOMER_DATA;
 alter table CUSTOMERS rename column EMAIL to CONTACT_EMAIL;
 alter table CUSTOMER_GROUPS rename column NAME to GROUP_NAME;
 -------------------------------------------------------
+-- 테이블 제거
+create table AUTHOR
+(AUTHOR_ID int not null primary key,
+FIRSTNAME varchar(50),
+LASTNAME varchar(50));
+
+create table PAGE
+(PAGE_ID serial primary key,
+TITLE varchar(255) not null,
+content text,
+AUTHOR_ID int not null,
+foreign key (AUTHOR_ID) references AUTHOR (AUTHOR_ID));
+
+insert into AUTHOR
+values
+(1,'kyounhoh','Lee');
+
+insert into PAGE
+values
+(1,'SQL 과 데이터베이스','drop table',1);
+
+commit;
+-------------------------------------------------------
+drop table author cascade;
+-------------------------------------------------------
+-- 임시 테이블
+create temp table TB_CUST_TEMP_TEST(CUST_ID int);
+-- DB 접속 세션의 활동 기간 동안 존재하는 테이블 (세션이 종료되면 임시 테이블은 자동으로 소멸됨)
+-------------------------------------------------------
+drop table TB_CUST_TEMP_TEST;
+
+create table TB_CUST_TEMP_TEST
+(CUST_ID serial primary key,
+CUST_NM varchar not null);
+
+create temp table TB_CUST_TEMP_TEST(CUST_ID int);
+
+select * from TB_CUST_TEMP_TEST;
+
+drop table TB_CUST_TEMP_TEST;
+
+select * from TB_CUST_TEMP_TEST; -- 해당 이름을 일반 테이블로 인식함
+-------------------------------------------------------
+-- 실습문제1
+select CUSTOMER_ID, SUM(A.AMOUNT) as SUM_AMOUNT
+from PAYMENT A group by A.CUSTOMER_ID;
+
+select A.CUSTOMER_ID, row_number() over(order by A.SUM_AMOUNT desc) as CUSTOMER_RANK
+from (select CUSTOMER_ID, SUM(A.AMOUNT) as SUM_AMOUNT from PAYMENT A group by A.CUSTOMER_ID) A
+order by CUSTOMER_RANK asc;
+
+create table CUSTOMER_RANK as
+select A.CUSTOMER_ID, row_number() over(order by A.SUM_AMOUNT desc) as CUSTOMER_RANK
+from (select CUSTOMER_ID, sum(A.AMOUNT) as SUM_AMOUNT
+	from PAYMENT A group by A.CUSTOMER_ID) A
+order by CUSTOMER_RANK asc;
+
+select* from CUSTOMER_RANK;
