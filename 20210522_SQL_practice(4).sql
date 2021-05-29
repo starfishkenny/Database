@@ -515,3 +515,30 @@ from (select CUSTOMER_ID, sum(A.AMOUNT) as SUM_AMOUNT
 order by CUSTOMER_RANK asc;
 
 select* from CUSTOMER_RANK;
+-------------------------------------------------------
+-- 실습문제2
+select 
+	CUSTOMER_ID,to_char(PAYMENT_DATE,'YYYYMM') as YYYYMM,sum(A.AMOUNT) as SUM_AMOUNT
+from PAYMENT A
+group by A.CUSTOMER_ID,to_char(PAYMENT_DATE,'YYYYMM');
+
+select
+	A.CUSTOMER_ID,YYYYMM,SUM_AMOUNT,row_number() over(partition by YYYYMM order by SUM_AMOUNT desc) as RANK_YYYYMM
+from
+	(select 
+	CUSTOMER_ID,to_char(PAYMENT_DATE,'YYYYMM') as YYYYMM,sum(A.AMOUNT) as SUM_AMOUNT
+from PAYMENT A
+group by A.CUSTOMER_ID,to_char(PAYMENT_DATE,'YYYYMM')) A
+order by YYYYMM, RANK_YYYYMM;
+
+create table CUSTOMER_RANK_YYYYMM as
+select
+	A.CUSTOMER_ID,YYYYMM,SUM_AMOUNT,row_number() over(partition by YYYYMM order by SUM_AMOUNT desc) as RANK_YYYYMM
+from
+	(select 
+	CUSTOMER_ID,to_char(PAYMENT_DATE,'YYYYMM') as YYYYMM,sum(A.AMOUNT) as SUM_AMOUNT
+from PAYMENT A
+group by A.CUSTOMER_ID,to_char(PAYMENT_DATE,'YYYYMM')) A
+order by YYYYMM, RANK_YYYYMM; 
+
+select * from CUSTOMER_RANK_YYYYMM;
