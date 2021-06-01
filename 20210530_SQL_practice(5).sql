@@ -178,3 +178,106 @@ select
 	to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS'),
 	to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS.MS'),
 	to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS.MS.US');
+-----------------------------------------------------------
+-- 기본키 (not null, unique)
+create table TB_PRODUCT_PK_TEST
+(PRODUCT_NO integer,
+DESCRIPTION text,
+PRODUCT_COST numeric);
+
+alter table TB_PRODUCT_PK_TEST
+add primary key (PRODUCT_NO);
+-----------------------------------------------------------
+-- 기본키 생성 (auto increment)
+create table TB_PRODUCT_PK_TEST_2
+(NAME varchar(255));
+
+insert into TB_PRODUCT_PK_TEST_2 (NAME)
+values
+('MICROSOFT'),
+('IBM'),
+('APPLE'),
+('SAMSUNG');
+
+commit;
+
+select * from TB_PRODUCT_PK_TEST_2;
+
+alter table TB_PRODUCT_PK_TEST_2 add column ID serial primary key;
+-- auto increment로 기본키 생성시 기본키 칼럼이 추가되면서 값도 자동으로 생성됨
+-----------------------------------------------------------
+-- 기본키 제거
+alter table TB_PRODUCT_PK_TEST
+drop constraint TB_PRODUCT_PK_TEST_PKEY;
+
+alter table TB_PRODUCT_PK_TEST_2
+drop constraint TB_PRODUCT_PK_TEST_2_PKEY;
+-----------------------------------------------------------
+-- 외래키 (자식 테이블의 특정 칼럼이 부모 테이블의 특정 칼럼의 값을 참조하는 것 -> 참조무결성)
+create table SO_HEADERS
+(ID serial primary key,
+CUSTOMER_ID integer,
+SHIP_TO varchar(255));
+
+create table SO_ITEMS
+(ITEM_ID integer not null,
+SO_ID integer,
+PRODUCT_ID integer,
+QTY integer,
+NET_PRICE integer,
+primary key (ITEM_ID,SO_ID));
+
+alter table SO_ITEMS
+add constraint FK_SO_HEADERS_ID
+foreign key (SO_ID) references SO_HEADERS(ID);
+
+insert into SO_HEADERS(CUSTOMER_ID,SHIP_TO)
+values
+(10, '4000 North First Street, CA 95134, USA'),
+(20, '1900 North First Street, CA 95134, USA'),
+(10, '4000 North First Street, CA 95134, USA');
+
+commit;
+
+insert into SO_ITEMS
+(ITEM_ID,SO_ID,PRODUCT_ID,QTY,NET_PRICE)
+values
+(1, 1, 1001, 2, 1000),
+(2, 1, 1000, 3, 1500),
+(3, 2, 1000, 4, 1500),
+(1, 2, 1001, 5, 1000),
+(2, 3, 1002, 2, 1700),
+(3, 3, 1003, 1, 2000);
+
+commit;
+
+select * from SO_HEADERS;
+select * from SO_ITEMS;
+-- SO_ITEMS테이블의 SO_ID의 값은 SO_HEADERS테이블의 ID칼럼에 존재해야 함
+-----------------------------------------------------------
+insert into SO_ITEMS
+(ITEM_ID,SO_ID,PRODUCT_ID,QTY,NET_PRICE)
+values
+(1,4,1001,2,1000);
+-- 존재하지 않는 값을 입력하려고 할 때 오류 발생
+-----------------------------------------------------------
+-- DDL문으로 외래키 삭제
+alter table SO_ITEMS
+drop constraint FK_SO_HEADERS_ID;
+-----------------------------------------------------------
+-- 테이블 생성과 동시에 외래키 생성
+create table SO_ITEMS_2
+(ITEM_ID integer not null,
+SO_ID integer references SO_HEADERS(ID),
+PRODUCT_ID integer,
+QTY integer,
+NET_PRICE numeric,
+primary key (ITEM_ID,SO_ID));
+-----------------------------------------------------------
+-- 복합 외래키 생성 방법
+create table CHILD_TABLE
+(C1 integer primary key,
+C2 integer,
+C3 integer,
+foreign key (C2,C3) references PARENT_TABLE (P1,P2));
+-----------------------------------------------------------
