@@ -281,3 +281,82 @@ C2 integer,
 C3 integer,
 foreign key (C2,C3) references PARENT_TABLE (P1,P2));
 -----------------------------------------------------------
+-- check (특저 칼럼에 들어가는 값에 대한 제약을 가하는 것 -> 업무적으로 절대 들어갈 수 없는 값을 막는 것)
+create table TB_EMP_CHECK_TEST
+(ID serial primary key,
+FIRST_NAME varchar(50),
+LAST_NAME varchar(50),
+BIRTH_DATE date check (BIRTH_DATE>'1900-01-01'),
+JOINED_DATE date check (JOINED_DATE>BIRTH_DATE),
+SALARY numeric check (SALARY>0));
+
+insert into TB_EMP_CHECK_TEST
+(FIRST_NAME, LAST_NAME, BIRTH_DATE, JOINED_DATE, SALARY)
+values
+('John','Doe','1972-01-01','2015-07-01',-100000); -- SALARY check 조건 
+-----------------------------------------------------------
+-- 테이블 생성 후 체크 제약 조건 추가
+alter table TB_EMP_CHECK_TEST
+add constraint SALARY_RANGE_CHECK
+check (SALARY>0 and SALARY<=1000000000);
+
+alter table TB_EMP_CHECK_TEST
+add constraint NAME_CHECK
+check (length(FIRST_NAME)>0 and length(LAST_NAME) > 0);
+-----------------------------------------------------------
+-- unique
+create table PERSON
+(ID serial primary key,
+FIRST_NAME varchar(50),
+LAST_NAME varchar(50),
+EMAIL varchar(50),
+unique(EMAIL));
+
+insert into PERSON(FIRST_NAME,LAST_NAME,EMAIL)
+values
+('John','Doe','j.doe@postgresqltutoiral.com');
+
+commit;
+
+insert into PERSON(FIRST_NAME,LAST_NAME,EMAIL)
+values
+('John','Doe','j.doe@postgresqltutoiral.com'); -- 이미 있음 (unique 조건 위반) --> 에러
+-----------------------------------------------------------
+-- unique index 생성
+create table PERSON_UNIQUE_INDEX_TEST
+(ID serial primary key,
+FIRST_NAME varchar(50),
+LAST_NAME varchar(50),
+EMAIL varchar(50));
+
+create unique index
+IX_PERSON_UNIQUE_INDEX_TEST_01
+on PERSON_UNIQUE_INDEX_TEST(EMAIL);
+
+insert into PERSON_UNIQUE_INDEX_TEST(FIRST_NAME,LAST_NAME,EMAIL)
+values
+('John','Doe','j.doe@postgresqltutorial.com');
+
+commit;
+
+insert into PERSON_UNIQUE_INDEX_TEST(FIRST_NAME,LAST_NAME,EMAIL)
+values
+('John','Doe','j.doe@postgresqltutorial.com'); -- 기존에 존재하는 이메일 주소를 입력하려고 함 --> 실패
+-----------------------------------------------------------
+-- not null
+create table INVOICE
+(ID serial primary key,
+PRODUCT_ID int not null,
+QTY numeric not null check(QTY > 0),
+NET_PRICE numeric check(NET_PRICE > 0));
+
+insert into INVOICE (PRODUCT_ID, QTY, NET_PRICE)
+values
+(null,1,1); -- not null 조건 위반 (PRODUCT_ID)
+-----------------------------------------------------------
+
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
