@@ -88,3 +88,44 @@ from TB_MEMBER_NULLIF_TEST; -- 오류 발생
 select (sum(case when GENDER = 1 then 1 else 0 end) / nullif(sum(case when GENDER = 2 then 1 else 0 end), 0)) -- 여성의 합계가 0이면 null
 * 100 as "MALE/FEMALE RATIO"
 from TB_MEMBER_NULLIF_TEST;
+
+----------------------------------------------------------------
+-- cast (데이터 값을 특정 데이터 타입으로 형변환이 가능하도록 함)
+select cast ('100' as integer);
+
+select '100'::integer; -- 위와 같은 결과
+
+select cast ('10c' as integer); -- 형변환 불가능
+
+select cast '10c'::integer;
+
+select cast ('2015-01-01' as date);
+
+select '2015-01-01'::date;
+
+select cast ('10.2' as double precision); -- '10.2'라는 문자열을 실수형으로 형변환
+
+select '10.2'::double precision;
+
+----------------------------------------------------------------
+-- with (select문의 결과를 임시 집합으로 저장해두고 SQL문에서 마치 테이블처럼 해당 집합을 불러올 수 있음)
+select 
+	FILM_ID,
+	TITLE,
+	(case when LENGTH < 30 then 'SHORT'
+		  when LENGTH >= 30 and LENGTH < 90 then 'MEDIUM'
+		  when LENGTH > 90 then 'LONG' end) LENGTH
+from FILM;
+
+with TMP1 as
+	(select 
+	FILM_ID,
+	TITLE,
+	(case when LENGTH < 30 then 'SHORT'
+		  when LENGTH >= 30 and LENGTH < 90 then 'MEDIUM'
+		  when LENGTH > 90 then 'LONG' end) LENGTH
+	 from FILM)
+select * from TMP1 where LENGTH = 'LONG';
+
+-- with문을 이용해서 해당 집합을 TMP1으로 지정하고아래 select문에서 TMP1을 조회함
+-- TMP1 집합에서 상영시간이 구분이 LONG인 집합을 출력함
