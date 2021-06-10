@@ -129,3 +129,38 @@ select * from TMP1 where LENGTH = 'LONG';
 
 -- with문을 이용해서 해당 집합을 TMP1으로 지정하고아래 select문에서 TMP1을 조회함
 -- TMP1 집합에서 상영시간이 구분이 LONG인 집합을 출력함
+
+----------------------------------------------------------------
+-- 재귀 쿼리 (with를 활용)
+create table TB_EMP_RECURSIVE_TEST
+(EMPLOYEE_ID serial primary key,
+FULL_NAME varchar not null,
+MANAGER_ID int);
+
+insert into TB_EMP_RECURSIVE_TEST
+(EMPLOYEE_ID,FULL_NAME,MANAGER_ID)
+values
+(1 , '이경오', NULL)
+, (2 , '김한이', 1)
+, (3 , '김승범', 1)
+, (4 , '하선주', 1)
+, (5 , '송백선', 1)
+, (6 , '이슬이', 2)
+, (7 , '홍발순', 2)
+, (8 , '김미순', 2)
+, (9 , '김선태', 2)
+, (10, '이선형', 3)
+, (11, '김선미', 3)
+, (12, '김선훈', 3)
+, (13, '이왕준', 3)
+, (14, '김사원', 4)
+, (15, '이시원', 4)
+, (16, '최선영', 7)
+, (17, '박태후', 7)
+, (18, '최민준', 8)
+, (19, '정택헌', 8)
+, (20, '노가람', 8);
+
+commit;
+
+select * from TB_EMP_RECURSIVE_TEST;
