@@ -164,3 +164,23 @@ values
 commit;
 
 select * from TB_EMP_RECURSIVE_TEST;
+
+with recursive TMP1 as
+	(select EMPLOYEE_ID,MANAGER_ID,FULL_NAME,0 LVL
+	from TB_EMP_RECURSIVE_TEST where MANAGER_ID is null -- 최상위 관리자부터 재귀 시작
+	union
+	select E.EMPLOYEE_ID,E.MANAGER_ID,E.FULL_NAME,S.LVL + 1
+	from TB_EMP_RECURSIVE_TEST E, TMP1 S where S.EMPLOYEE_ID = E.MANAGER_ID)
+select EMPLOYEE_ID, MANAGER_ID, LPAD(' ',4 * (LVL)) || FULL_NAME as FULL_NAME
+from TMP1;
+
+with recursive TMP1 as
+	(select EMPLOYEE_ID,MANAGER_ID,FULL_NAME,0 LVL
+	from TB_EMP_RECURSIVE_TEST where MANAGER_ID = 2 -- '김한이' 사원부터 재귀 시작
+	union
+	select E.EMPLOYEE_ID,E.MANAGER_ID,E.FULL_NAME,S.LVL + 1
+	from TB_EMP_RECURSIVE_TEST E, TMP1 S where S.EMPLOYEE_ID = E.MANAGER_ID)
+select EMPLOYEE_ID, MANAGER_ID, LPAD(' ',4 * (LVL)) || FULL_NAME as FULL_NAME
+from TMP1;
+
+----------------------------------------------------------------
