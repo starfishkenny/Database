@@ -212,3 +212,58 @@ values
 rollback;
 
 select * from TB_ACCOUNT_TRANSACTION_TEST;
+
+----------------------------------------------------------------
+-- 실습문제1
+create table BASKET
+(ID serial primary key,
+FRUIT varchar(50) not null);
+
+insert into BASKET(FRUIT)
+values('APPLE');
+insert into BASKET(FRUIT)
+values('APPLE');
+insert into BASKET(FRUIT)
+values('ORANGE');
+insert into BASKET(FRUIT)
+values('ORANGE');
+insert into BASKET(FRUIT)
+values('ORANGE');
+insert into BASKET(FRUIT)
+values('BANANA');
+
+commit;
+
+select * from BASKET;
+
+-- BASKET 테이블을 조회해서 FRUIT별로 수뉘를 ASC로 구한 후 순위가 1보다 큰 것을 구함
+select ID,FRUIT,ROW_NUM
+from
+(select ID,FRUIT,row_number() over (partition by FRUIT order by ID asc) as ROW_NUM from BASKET) T
+where T.ROW_NUM > 1;
+
+-- 기본키인 ID값을 가지고 해당 ROW를 삭제
+delete from BASKET
+where ID in 
+	(select ID from (select ID,FRUIT,
+						row_number() over (partition by FRUIT order by ID asc) as ROW_NUM from BASKET) T
+					where T.ROW_NUM > 1);
+
+commit;
+
+select * from BASKET;
+
+----------------------------------------------------------------
+-- 실습문제2
+
+-- RATING 칼럼별 LENGTH를 역순으로 정렬하여 순위를 구함
+select FILM_ID,TITLE,RATING,LENGTH,
+	   RANK() over (partition by RATING order by LENGTH desc) LENGTH_RANK
+from FILM;
+
+-- 위 select 문을 with문으로 감싼 후 아래의 select 문에서 순위가 1위인 것만 추출
+with TMP1 as (
+select FILM_ID,TITLE,RATING,LENGTH,
+	   RANK() over (partition by RATING order by LENGTH desc) LENGTH_RANK
+from FILM)
+select * from TMP1 where LENGTH_RANK = 1;
